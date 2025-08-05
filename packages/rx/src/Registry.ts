@@ -51,7 +51,7 @@ export interface Registry {
  * @since 1.0.0
  * @category models
  */
-interface Node<A> {
+export interface Node<A> {
   readonly rx: Rx.Rx<A>
   readonly value: () => A
 }
