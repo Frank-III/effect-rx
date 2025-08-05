@@ -16,6 +16,7 @@ import { RegistryContext } from "./RegistryContext.js"
 interface RxStore<A> {
   readonly subscribe: (f: () => void) => () => void
   readonly snapshot: () => A
+  readonly getServerSnapshot: () => A
 }
 
 const storeRegistry = globalValue(
@@ -39,6 +40,9 @@ function makeStore<A>(registry: Registry.Registry, rx: Rx.Rx<A>): RxStore<A> {
     },
     snapshot() {
       return registry.get(rx)
+    },
+    getServerSnapshot() {
+      return Rx.getServerValue(rx, registry)
     }
   }
   stores.set(rx, newStore)
@@ -47,7 +51,8 @@ function makeStore<A>(registry: Registry.Registry, rx: Rx.Rx<A>): RxStore<A> {
 
 function useStore<A>(registry: Registry.Registry, rx: Rx.Rx<A>): A {
   const store = makeStore(registry, rx)
-  return React.useSyncExternalStore(store.subscribe, store.snapshot, store.snapshot)
+
+  return React.useSyncExternalStore(store.subscribe, store.snapshot, store.getServerSnapshot)
 }
 
 const initialValuesSet = globalValue(
@@ -140,7 +145,7 @@ export const useRxSetPromise = <E, A, W>(
   mountRx(registry, rx)
   return React.useCallback((value, options) => {
     registry.set(rx, value)
-    return Effect.runPromiseExit(Registry.getResult(registry, rx), options)
+    return Effect.runPromiseExit(Registry.getResult(registry, rx, { suspendOnWaiting: true }), options)
   }, [registry, rx])
 }
 
@@ -218,27 +223,19 @@ function rxResultOrSuspend<A, E>(
  * @since 1.0.0
  * @category hooks
  */
-export const useRxSuspense = <A, E>(
+export const useRxSuspense = <A, E, const IncludeFailure extends boolean = false>(
   rx: Rx.Rx<Result.Result<A, E>>,
-  options?: { readonly suspendOnWaiting?: boolean }
-): Result.Success<A, E> | Result.Failure<A, E> => {
+  options?: {
+    readonly suspendOnWaiting?: boolean | undefined
+    readonly includeFailure?: IncludeFailure | undefined
+  }
+): Result.Success<A, E> | (IncludeFailure extends true ? Result.Failure<A, E> : never) => {
   const registry = React.useContext(RegistryContext)
-  return rxResultOrSuspend(registry, rx, options?.suspendOnWaiting ?? false)
-}
-
-/**
- * @since 1.0.0
- * @category hooks
- */
-export const useRxSuspenseSuccess = <A, E>(
-  rx: Rx.Rx<Result.Result<A, E>>,
-  options?: { readonly suspendOnWaiting?: boolean }
-): Result.Success<A, E> => {
-  const result = useRxSuspense(rx, options)
-  if (result._tag === "Failure") {
+  const result = rxResultOrSuspend(registry, rx, options?.suspendOnWaiting ?? false)
+  if (result._tag === "Failure" && !options?.includeFailure) {
     throw Cause.squash(result.cause)
   }
-  return result
+  return result as any
 }
 
 /**

@@ -1,5 +1,74 @@
 # @effect-rx/rx-livestore
 
+## 0.1.12
+
+### Patch Changes
+
+- [`687ac72`](https://github.com/tim-smart/effect-rx/commit/687ac72049e7982bfe944471bfac3646abc10afd) Thanks [@tim-smart](https://github.com/tim-smart)! - expose livestore StoreService tag
+
+## 0.1.11
+
+### Patch Changes
+
+- [`17b19e1`](https://github.com/tim-smart/effect-rx/commit/17b19e109dc90b34c197d25424d3ef96c1940254) Thanks [@tim-smart](https://github.com/tim-smart)! - include Initial in Result.builder.onWaiting
+
+- Updated dependencies [[`17b19e1`](https://github.com/tim-smart/effect-rx/commit/17b19e109dc90b34c197d25424d3ef96c1940254)]:
+  - @effect-rx/rx@0.48.3
+
+## 0.1.10
+
+### Patch Changes
+
+- [`999065a`](https://github.com/tim-smart/effect-rx/commit/999065a26c43c450c2556f16312bb015a7f553cf) Thanks [@tim-smart](https://github.com/tim-smart)! - fix Result.builder order preservation
+
+- Updated dependencies [[`999065a`](https://github.com/tim-smart/effect-rx/commit/999065a26c43c450c2556f16312bb015a7f553cf)]:
+  - @effect-rx/rx@0.48.1
+
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [[`011cb68`](https://github.com/tim-smart/effect-rx/commit/011cb687494a491755bd58c8ca8325a032bade31), [`011cb68`](https://github.com/tim-smart/effect-rx/commit/011cb687494a491755bd58c8ca8325a032bade31)]:
+  - @effect-rx/rx@0.48.0
+
+## 0.1.8
+
+### Patch Changes
+
+- [`52243c7`](https://github.com/tim-smart/effect-rx/commit/52243c723556775821126e0dfb11e671ba667207) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.builder.onWaiting
+
+- Updated dependencies [[`52243c7`](https://github.com/tim-smart/effect-rx/commit/52243c723556775821126e0dfb11e671ba667207)]:
+  - @effect-rx/rx@0.47.11
+
+## 0.1.7
+
+### Patch Changes
+
+- [`ec2aba9`](https://github.com/tim-smart/effect-rx/commit/ec2aba90fec70889bfe1a15f5d04153b9d270d35) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.Builder.onErrorIf
+
+- [`da07944`](https://github.com/tim-smart/effect-rx/commit/da07944bb01aca931fd3685831641c0bba3b566d) Thanks [@tim-smart](https://github.com/tim-smart)! - add Rx.withServerValue
+
+- Updated dependencies [[`ec2aba9`](https://github.com/tim-smart/effect-rx/commit/ec2aba90fec70889bfe1a15f5d04153b9d270d35), [`da07944`](https://github.com/tim-smart/effect-rx/commit/da07944bb01aca931fd3685831641c0bba3b566d)]:
+  - @effect-rx/rx@0.47.10
+
+## 0.1.6
+
+### Patch Changes
+
+- [`7722d8f`](https://github.com/tim-smart/effect-rx/commit/7722d8f8b3a255062c3cbb45519474f7c2da204e) Thanks [@tim-smart](https://github.com/tim-smart)! - expose orNull in Result.Builder
+
+- Updated dependencies [[`7722d8f`](https://github.com/tim-smart/effect-rx/commit/7722d8f8b3a255062c3cbb45519474f7c2da204e)]:
+  - @effect-rx/rx@0.47.9
+
+## 0.1.5
+
+### Patch Changes
+
+- [`d48dd1f`](https://github.com/tim-smart/effect-rx/commit/d48dd1f29334d401bce2c0f9f7bf488345fd9b1a) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.Builder fallback methods
+
+- Updated dependencies [[`d48dd1f`](https://github.com/tim-smart/effect-rx/commit/d48dd1f29334d401bce2c0f9f7bf488345fd9b1a)]:
+  - @effect-rx/rx@0.47.8
+
 ## 0.1.4
 
 ### Patch Changes

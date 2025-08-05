@@ -1,16 +1,19 @@
 /**
  * @since 1.0.0
  */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import * as Cause from "effect/Cause"
 import * as Equal from "effect/Equal"
 import * as Exit from "effect/Exit"
 import type { LazyArg } from "effect/Function"
-import { dual, identity } from "effect/Function"
+import { constTrue, dual, identity } from "effect/Function"
 import * as Hash from "effect/Hash"
 import * as Option from "effect/Option"
 import { type Pipeable, pipeArguments } from "effect/Pipeable"
+import type { Predicate, Refinement } from "effect/Predicate"
 import { hasProperty } from "effect/Predicate"
 import * as Schema_ from "effect/Schema"
+import type * as Types from "effect/Types"
 
 /**
  * @since 1.0.0
@@ -341,12 +344,15 @@ export const getOrThrow = <A, E>(self: Result<A, E>): A =>
  * @since 1.0.0
  * @category accessors
  */
-export const cause = <A, E>(self: Result<A, E>): Option.Option<Cause.Cause<E>> => {
-  if (self._tag === "Failure") {
-    return Option.some(self.cause)
-  }
-  return Option.none()
-}
+export const cause = <A, E>(self: Result<A, E>): Option.Option<Cause.Cause<E>> =>
+  self._tag === "Failure" ? Option.some(self.cause) : Option.none()
+
+/**
+ * @since 1.0.0
+ * @category accessors
+ */
+export const error = <A, E>(self: Result<A, E>): Option.Option<E> =>
+  self._tag === "Failure" ? Cause.failureOption(self.cause) : Option.none()
 
 /**
  * @since 1.0.0
@@ -497,6 +503,160 @@ export const matchWithWaiting: {
       return options.onSuccess(self)
   }
 })
+
+/**
+ * @since 1.0.0
+ * @category Builder
+ */
+export const builder = <A extends Result<any, any>>(self: A): Builder<
+  never,
+  A extends Success<infer _A, infer _E> ? _A : never,
+  A extends Failure<infer _A, infer _E> ? _E : never,
+  A extends Initial<infer _A, infer _E> ? true : never
+> => new BuilderImpl(self)
+
+/**
+ * @since 1.0.0
+ * @category Builder
+ */
+export type Builder<Out, A, E, I> =
+  & Pipeable
+  & {
+    onWaiting<B>(f: (result: Result<A, E>) => B): Builder<Out | B, A, E, never>
+    onDefect<B>(f: (defect: unknown, result: Failure<A, E>) => B): Builder<Out | B, A, E, I>
+    orElse<B>(orElse: LazyArg<B>): Out | B
+    orNull(): Out | null
+  }
+  & ([A | I] extends [never] ? {
+      render(): Out
+    } :
+    {})
+  & ([I] extends [never] ? {} :
+    {
+      onInitial<B>(f: (result: Initial<A, E>) => B): Builder<Out | B, A, E, never>
+    })
+  & ([A] extends [never] ? {} :
+    {
+      onSuccess<B>(f: (value: A, result: Success<A, E>) => B): Builder<Out | B, never, E, I>
+    })
+  & ([E] extends [never] ? {} : {
+    onFailure<B>(f: (cause: Cause.Cause<E>, result: Failure<A, E>) => B): Builder<Out | B, A, never, I>
+
+    onError<B>(f: (error: E, result: Failure<A, E>) => B): Builder<Out | B, A, never, I>
+
+    onErrorIf<B extends E, C>(
+      refinement: Refinement<E, B>,
+      f: (error: B, result: Failure<A, E>) => C
+    ): Builder<Out | C, A, Types.EqualsWith<E, B, E, Exclude<E, B>>, I>
+    onErrorIf<C>(
+      predicate: Predicate<E>,
+      f: (error: E, result: Failure<A, E>) => C
+    ): Builder<Out | C, A, E, I>
+
+    onErrorTag<const Tags extends ReadonlyArray<Types.Tags<E>>, B>(
+      tags: Tags,
+      f: (error: Types.ExtractTag<E, Tags[number]>, result: Failure<A, E>) => B
+    ): Builder<Out | B, A, Types.ExcludeTag<E, Tags[number]>, I>
+    onErrorTag<const Tag extends Types.Tags<E>, B>(
+      tag: Tag,
+      f: (error: Types.ExtractTag<E, Tag>, result: Failure<A, E>) => B
+    ): Builder<Out | B, A, Types.ExcludeTag<E, Tag>, I>
+  })
+
+class BuilderImpl<Out, A, E> {
+  constructor(readonly result: Result<A, E>) {}
+  public output = Option.none<Out>()
+
+  when<B extends Result<A, E>, C>(
+    refinement: Refinement<Result<A, E>, B>,
+    f: (result: B) => Option.Option<C>
+  ): any
+  when<C>(
+    refinement: Predicate<Result<A, E>>,
+    f: (result: Result<A, E>) => Option.Option<C>
+  ): any
+  when<C>(
+    refinement: Predicate<Result<A, E>>,
+    f: (result: Result<A, E>) => Option.Option<C>
+  ): any {
+    if (Option.isNone(this.output) && refinement(this.result)) {
+      const b = f(this.result)
+      if (Option.isSome(b)) {
+        ;(this as any).output = b
+      }
+    }
+    return this
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
+  }
+
+  onWaiting<B>(f: (result: Result<A, E>) => B): BuilderImpl<Out | B, A, E> {
+    return this.when((r) => isInitial(r) || r.waiting, (r) => Option.some(f(r)))
+  }
+
+  onInitial<B>(f: (result: Initial<A, E>) => B): BuilderImpl<Out | B, A, E> {
+    return this.when(isInitial, (r) => Option.some(f(r)))
+  }
+
+  onSuccess<B>(f: (value: A, result: Success<A, E>) => B): BuilderImpl<Out | B, never, E> {
+    return this.when(isSuccess, (r) => Option.some(f(r.value, r)))
+  }
+
+  onFailure<B>(f: (cause: Cause.Cause<E>, result: Failure<A, E>) => B): BuilderImpl<Out | B, A, never> {
+    return this.when(isFailure, (r) => Option.some(f(r.cause, r)))
+  }
+
+  onError<B>(f: (error: E, result: Failure<A, E>) => B): BuilderImpl<Out | B, A, never> {
+    return this.onErrorIf(constTrue, f) as any
+  }
+
+  onErrorIf<C, B extends E = E>(
+    refinement: Refinement<E, B> | Predicate<E>,
+    f: (error: B, result: Failure<A, E>) => C
+  ): BuilderImpl<Out | C, A, Types.EqualsWith<E, B, E, Exclude<E, B>>> {
+    return this.when(isFailure, (result) =>
+      Cause.failureOption(result.cause).pipe(
+        Option.filter(refinement),
+        Option.map((error) => f(error as B, result))
+      ))
+  }
+
+  onErrorTag<B>(
+    tag: string | ReadonlyArray<string>,
+    f: (error: Types.ExtractTag<E, any>, result: Failure<A, E>) => B
+  ): BuilderImpl<Out | B, A, Types.ExcludeTag<E, any>> {
+    return this.onErrorIf(
+      (e) => hasProperty(e, "_tag") && (Array.isArray(tag) ? tag.includes(e._tag) : e._tag === tag),
+      f
+    ) as any
+  }
+
+  onDefect<B>(f: (defect: unknown, result: Failure<A, E>) => B): BuilderImpl<Out | B, A, E> {
+    return this.when(isFailure, (result) =>
+      Cause.dieOption(result.cause).pipe(
+        Option.map((defect) => f(defect, result))
+      ))
+  }
+
+  orElse<B>(orElse: LazyArg<B>): Out | B {
+    return Option.getOrElse(this.output, orElse)
+  }
+
+  orNull(): Out | null {
+    return Option.getOrNull(this.output)
+  }
+
+  render(): Out {
+    if (Option.isSome(this.output)) {
+      return this.output.value
+    } else if (isFailure(this.result)) {
+      throw Cause.squash(this.result.cause)
+    }
+    throw new Cause.NoSuchElementException(`Result.builder.render: no output found`)
+  }
+}
 
 /**
  * @since 1.0.0

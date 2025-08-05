@@ -1,5 +1,63 @@
 # @effect-rx/rx
 
+## 0.48.3
+
+### Patch Changes
+
+- [`17b19e1`](https://github.com/tim-smart/effect-rx/commit/17b19e109dc90b34c197d25424d3ef96c1940254) Thanks [@tim-smart](https://github.com/tim-smart)! - include Initial in Result.builder.onWaiting
+
+## 0.48.2
+
+### Patch Changes
+
+- [`9c5624a`](https://github.com/tim-smart/effect-rx/commit/9c5624a3afb79c2a3117aa286c48fa9a33f5ee84) Thanks [@tim-smart](https://github.com/tim-smart)! - add suspendOnWaiting to .getResult
+
+## 0.48.1
+
+### Patch Changes
+
+- [`999065a`](https://github.com/tim-smart/effect-rx/commit/999065a26c43c450c2556f16312bb015a7f553cf) Thanks [@tim-smart](https://github.com/tim-smart)! - fix Result.builder order preservation
+
+## 0.48.0
+
+### Minor Changes
+
+- [`011cb68`](https://github.com/tim-smart/effect-rx/commit/011cb687494a491755bd58c8ca8325a032bade31) Thanks [@tim-smart](https://github.com/tim-smart)! - Rx.pull now returns an NonEmptyArray
+
+- [`011cb68`](https://github.com/tim-smart/effect-rx/commit/011cb687494a491755bd58c8ca8325a032bade31) Thanks [@tim-smart](https://github.com/tim-smart)! - Rx.context now requires an expicit memoMap
+
+## 0.47.11
+
+### Patch Changes
+
+- [`52243c7`](https://github.com/tim-smart/effect-rx/commit/52243c723556775821126e0dfb11e671ba667207) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.builder.onWaiting
+
+## 0.47.10
+
+### Patch Changes
+
+- [`ec2aba9`](https://github.com/tim-smart/effect-rx/commit/ec2aba90fec70889bfe1a15f5d04153b9d270d35) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.Builder.onErrorIf
+
+- [`da07944`](https://github.com/tim-smart/effect-rx/commit/da07944bb01aca931fd3685831641c0bba3b566d) Thanks [@tim-smart](https://github.com/tim-smart)! - add Rx.withServerValue
+
+## 0.47.9
+
+### Patch Changes
+
+- [`7722d8f`](https://github.com/tim-smart/effect-rx/commit/7722d8f8b3a255062c3cbb45519474f7c2da204e) Thanks [@tim-smart](https://github.com/tim-smart)! - expose orNull in Result.Builder
+
+## 0.47.8
+
+### Patch Changes
+
+- [`d48dd1f`](https://github.com/tim-smart/effect-rx/commit/d48dd1f29334d401bce2c0f9f7bf488345fd9b1a) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.Builder fallback methods
+
+## 0.47.7
+
+### Patch Changes
+
+- [`4cc665d`](https://github.com/tim-smart/effect-rx/commit/4cc665d7ca1b116d92968c62b385c24564caabde) Thanks [@tim-smart](https://github.com/tim-smart)! - add Result.error & Result.builder
+
 ## 0.47.6
 
 ### Patch Changes
